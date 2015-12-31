@@ -192,6 +192,7 @@ func (z *ZHttpd) doGet(md5Sum string) {
 	xx := z.request.Form.Get("x")
 	yy := z.request.Form.Get("y")
 	rotate := z.request.Form.Get("r")
+	proportion := z.request.Form.Get("p")
 
 	w = str2Int(width)
 	if w >= imgInfo.Width || w <= 0 {
@@ -235,6 +236,8 @@ func (z *ZHttpd) doGet(md5Sum string) {
 	} else if q > 100 {
 		q = 100
 	}
+	
+	p = str2Int(proportion)
 
 	save := strings.Trim(z.request.Form.Get("s"), " ")
 	if len(save) == 0 {
