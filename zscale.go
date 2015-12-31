@@ -33,7 +33,7 @@ func crop(mw *imagick.MagickWand, x, y int, cols, rows uint) error {
 		rows = imRows - uint(y)
 	}
 
-	fmt.Print(fmt.Sprintf("wi_crop(im, %d, %d, %d, %d)\n", x, y, cols, rows))
+	fmt.Print(fmt.Printf("wi_crop(im, %d, %d, %d, %d)\n", x, y, cols, rows))
 
 	result = mw.CropImage(cols, rows, x, y)
 
@@ -48,7 +48,7 @@ func proportion(mw *imagick.MagickWand, proportion int, cols uint, rows uint) er
 	imRows := mw.GetImageHeight()
 
 	if proportion == 0 {
-		fmt.Sprintf("p=0, wi_scale(im, %d, %d)\n", cols, rows)
+		fmt.Printf("p=0, wi_scale(im, %d, %d)\n", cols, rows)
 		result = mw.ResizeImage(cols, rows, imagick.FILTER_UNDEFINED, 1.0)
 
 	} else if proportion == 1 {
@@ -59,36 +59,35 @@ func proportion(mw *imagick.MagickWand, proportion int, cols uint, rows uint) er
 			} else {
 				cols = uint(round(float64((rows / imRows) * imCols)))
 			}
-			fmt.Sprintf("p=1, wi_scale(im, %d, %d)\n", cols, rows)
+			fmt.Printf("p=1, wi_scale(im, %d, %d)\n", cols, rows)
 			result = mw.ResizeImage(cols, rows, imagick.FILTER_UNDEFINED, 1.0)
 		} else {
 			var x, y, sCols, sRows uint
 			x, y = 0, 0
 
-			colsRate := cols / imCols
-			rowsRate := rows / imRows
+			colsRate := float64(cols) / float64(imCols)
+			rowsRate := float64(rows) / float64(imRows)
 
 			if colsRate > rowsRate {
 				sCols = cols
-				sRows = uint(round(float64(colsRate * imRows)))
+				sRows = uint(round(float64(colsRate * float64(imRows))))
 				y = uint(math.Floor(float64((sRows - rows) / 2.0)))
 			} else {
-				sCols = uint(round(float64(rowsRate * imCols)))
+				sCols = uint(round(float64(rowsRate * float64(imCols))))
 				sRows = rows
 				x = uint(math.Floor(float64((sCols - cols) / 2.0)))
 			}
 
-			fmt.Sprintf("p=2, wi_scale(im, %d, %d)\n", sCols, sRows)
+			fmt.Printf("p=2, wi_scale(im, %d, %d)\n", sCols, sRows)
 			result = mw.ResizeImage(sCols, sRows, imagick.FILTER_UNDEFINED, 1.0)
-
-			fmt.Sprintf("p=2, wi_crop(im, %d, %d, %d, %d)\n", x, y, cols, rows)
+			fmt.Printf("p=2, wi_crop(im, %d, %d, %d, %d)\n", x, y, cols, rows)
 			result = mw.CropImage(cols, rows, int(x), int(y))
 		}
 
 	} else if proportion == 2 {
 		x := int(math.Floor(float64((imCols - cols) / 2.0)))
 		y := int(math.Floor(float64((imRows - rows) / 2.0)))
-		fmt.Sprintf("p=3, wi_crop(im, %d, %d, %d, %d)\n", x, y, cols, rows)
+		fmt.Printf("p=3, wi_crop(im, %d, %d, %d, %d)\n", x, y, cols, rows)
 		result = mw.CropImage(cols, rows, x, y)
 
 	} else if proportion == 3 {
@@ -101,12 +100,12 @@ func proportion(mw *imagick.MagickWand, proportion int, cols uint, rows uint) er
 			}
 			rows = uint(round(float64(imRows * rate / 100)))
 			cols = uint(round(float64(imCols * rate / 100)))
-			fmt.Sprintf("p=3, wi_scale(im, %d, %d)\n", cols, rows)
+			fmt.Printf("p=3, wi_scale(im, %d, %d)\n", cols, rows)
 			result = mw.ResizeImage(cols, rows, imagick.FILTER_UNDEFINED, 1.0)
 		} else {
 			rows = uint(round(float64(imRows * rows / 100)))
 			cols = uint(round(float64(imCols * cols / 100)))
-			fmt.Sprintf("p=3, wi_scale(im, %d, %d)\n", cols, rows)
+			fmt.Printf("p=3, wi_scale(im, %d, %d)\n", cols, rows)
 			result = mw.ResizeImage(cols, rows, imagick.FILTER_UNDEFINED, 1.0)
 		}
 
@@ -120,19 +119,21 @@ func proportion(mw *imagick.MagickWand, proportion int, cols uint, rows uint) er
 				rate = float64(rows / imRows)
 			}
 		} else {
-			rateCol := cols / imCols
-			rateRow := rows / imRows
+			rateCol := float64(cols) / float64(imCols)
+			rateRow := float64(rows) / float64(imRows)
 			if rateCol < rateRow {
-				rate = float64(rateCol)
+				rate = rateCol
 			} else {
-				rate = float64(rateRow)
+				rate = rateRow
 			}
 		}
 
 		cols = uint(round(float64(float64(imCols) * rate)))
 		rows = uint(round(float64(float64(imRows) * rate)))
-		fmt.Sprintf("p=4, wi_scale(im, %d, %d)\n", cols, rows)
+		fmt.Printf("p=4, wi_scale(im, %d, %d)\n", cols, rows)
 		result = mw.ResizeImage(cols, rows, imagick.FILTER_UNDEFINED, 1.0)
+	} else {
+		fmt.Printf("p=%v\n", proportion)
 	}
 
 	return result
@@ -153,23 +154,22 @@ func convert(mw *imagick.MagickWand, request *ZRequest) error {
 	cols := uint(request.Width)
 	rows := uint(request.Height)
 
-	fmt.Sprintf("image cols %d, rows %d \n", cols, rows)
+	fmt.Printf("image cols %d, rows %d \n", cols, rows)
 
 	if !(cols == 0 && rows == 0) {
-		fmt.Println("call crop&scal function......")
 
 		/* crop and scale */
 		if x == -1 && y == -1 {
-			fmt.Println("call crop&scal function......")
-
-			fmt.Print(fmt.Sprintf("proportion(im, %d, %d, %d) \n", request.Proportion, cols, rows))
+			fmt.Println("call proportion function......")
+			fmt.Print(fmt.Printf("proportion(im, %d, %d, %d) \n", request.Proportion, cols, rows))
+			
 			result = proportion(mw, request.Proportion, cols, rows)
 			if result != nil {
 				return result
 			}
 		} else {
-
-			fmt.Print(fmt.Sprintf("crop(im, %d, %d, %d, %d) \n", x, y, cols, rows))
+			fmt.Println("call crop function......")
+			fmt.Print(fmt.Printf("crop(im, %d, %d, %d, %d) \n", x, y, cols, rows))
 
 			result = crop(mw, x, y, cols, rows)
 			if result != nil {
@@ -180,7 +180,7 @@ func convert(mw *imagick.MagickWand, request *ZRequest) error {
 
 	/* rotate image */
 	if request.Rotate != 0 {
-		fmt.Print(fmt.Sprintf("wi_rotate(im, %d) \n", request.Rotate))
+		fmt.Print(fmt.Printf("wi_rotate(im, %d) \n", request.Rotate))
 
 		background := imagick.NewPixelWand()
 		if background == nil {
@@ -202,7 +202,7 @@ func convert(mw *imagick.MagickWand, request *ZRequest) error {
 
 	/* set gray */
 	if request.Gary == 1 {
-		fmt.Print(fmt.Sprintf("wi_gray(im) \n"))
+		fmt.Print(fmt.Printf("wi_gray(im) \n"))
 		result = mw.SetImageType(imagick.IMAGE_TYPE_GRAYSCALE)
 		if result != nil {
 			return result
@@ -210,7 +210,7 @@ func convert(mw *imagick.MagickWand, request *ZRequest) error {
 	}
 
 	/* set quality */
-	fmt.Print(fmt.Sprintf("wi_set_quality(im, %d) \n", request.Quality))
+	fmt.Print(fmt.Printf("wi_set_quality(im, %d) \n", request.Quality))
 	result = mw.SetImageCompressionQuality(uint(request.Quality))
 	if result != nil {
 		return result
@@ -218,14 +218,14 @@ func convert(mw *imagick.MagickWand, request *ZRequest) error {
 
 	/* set format */
 	if "none" != request.Format {
-		fmt.Print(fmt.Sprintf("wi_set_format(im, %s) \n", request.Format))
+		fmt.Print(fmt.Printf("wi_set_format(im, %s) \n", request.Format))
 		result = mw.SetImageFormat(request.Format)
 		if result != nil {
 			return result
 		}
 	}
 
-	fmt.Print(fmt.Sprintf("convert(im, req) %s \n", result))
+	fmt.Print(fmt.Printf("convert(im, req) %s \n", result))
 
 	return result
 }
