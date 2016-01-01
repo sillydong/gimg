@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	zimg "github.com/Leon2012/gimg"
+	zimg "github.com/sillydong/gimg"
 	_ "github.com/bradfitz/gomemcache/memcache"
 	"net/http"
 	"os"
