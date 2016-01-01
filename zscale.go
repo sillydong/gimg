@@ -79,7 +79,10 @@ func proportion(mw *imagick.MagickWand, proportion int, cols uint, rows uint) er
 			}
 
 			fmt.Printf("p=2, wi_scale(im, %d, %d)\n", sCols, sRows)
-			result = mw.ResizeImage(sCols, sRows, imagick.FILTER_UNDEFINED, 1.0)
+			//result = mw.ResizeImage(sCols, sRows, imagick.FILTER_UNDEFINED, 1.0)
+			mw.SetGravity(imagick.GRAVITY_CENTER)
+			result= mw.StripImage()
+			result = mw.ThumbnailImage(sCols,sRows)
 			fmt.Printf("p=2, wi_crop(im, %d, %d, %d, %d)\n", x, y, cols, rows)
 			result = mw.CropImage(cols, rows, int(x), int(y))
 		}
@@ -101,12 +104,18 @@ func proportion(mw *imagick.MagickWand, proportion int, cols uint, rows uint) er
 			rows = uint(round(float64(imRows * rate / 100)))
 			cols = uint(round(float64(imCols * rate / 100)))
 			fmt.Printf("p=3, wi_scale(im, %d, %d)\n", cols, rows)
-			result = mw.ResizeImage(cols, rows, imagick.FILTER_UNDEFINED, 1.0)
+			//result = mw.ResizeImage(cols, rows, imagick.FILTER_UNDEFINED, 1.0)
+			mw.SetGravity(imagick.GRAVITY_CENTER)
+			result= mw.StripImage()
+			result = mw.ThumbnailImage(cols, rows)
 		} else {
 			rows = uint(round(float64(imRows * rows / 100)))
 			cols = uint(round(float64(imCols * cols / 100)))
 			fmt.Printf("p=3, wi_scale(im, %d, %d)\n", cols, rows)
-			result = mw.ResizeImage(cols, rows, imagick.FILTER_UNDEFINED, 1.0)
+			//result = mw.ResizeImage(cols, rows, imagick.FILTER_UNDEFINED, 1.0)
+			mw.SetGravity(imagick.GRAVITY_CENTER)
+			result= mw.StripImage()
+			result = mw.ThumbnailImage(cols, rows)
 		}
 
 	} else if proportion == 4 {
@@ -131,7 +140,10 @@ func proportion(mw *imagick.MagickWand, proportion int, cols uint, rows uint) er
 		cols = uint(round(float64(float64(imCols) * rate)))
 		rows = uint(round(float64(float64(imRows) * rate)))
 		fmt.Printf("p=4, wi_scale(im, %d, %d)\n", cols, rows)
-		result = mw.ResizeImage(cols, rows, imagick.FILTER_UNDEFINED, 1.0)
+		//result = mw.ResizeImage(cols, rows, imagick.FILTER_UNDEFINED, 1.0)
+		mw.SetGravity(imagick.GRAVITY_CENTER)
+		result= mw.StripImage()
+		result = mw.ThumbnailImage(cols, rows)
 	} else {
 		fmt.Printf("p=%v\n", proportion)
 	}
