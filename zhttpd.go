@@ -233,8 +233,8 @@ func (z *ZHttpd) doGet(md5Sum string) {
 	if q <= 0 {
 		//q = imgInfo.Quality
 		q = z.context.Config.System.Quality //加载默认保存图片质量
-	} else if q > 100 {
-		q = 100
+	} else if q >= 90 {
+		q = 90
 	}
 	
 	p = str2Int(proportion)
